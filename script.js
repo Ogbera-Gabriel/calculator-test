@@ -36,39 +36,43 @@ document.addEventListener('DOMContentLoaded', function() {
   
     const operate = () => {
         if (firstOperand === null || operator === null) {
-          currentNumber = '0';
-        } else {
-          const secondOperand = parseFloat(currentNumber);
-          let result;
-          if (operator === '+') {
-            result = firstOperand + secondOperand;
-          } else if (operator === '-') {
-            result = firstOperand - secondOperand;
-          } else if (operator === '×') {
-            result = firstOperand * secondOperand;
-          } else if (operator === '÷') {
-            if (secondOperand === 0) {
-                currentNumber = 'Objection!!!';
-                updateDisplay();
-                firstOperand = null;
-                operator = null;
-                return;
-            } else {
-              result = firstOperand / secondOperand;
-            }
-          }
-          if (isNaN(result)) {
             currentNumber = '0';
-          } else if (Math.abs(result)  >= 1e9 ) {
-            currentNumber = result.toExponential(4);
-          } else {
-            currentNumber = result.toString();
-          }
+        } else {
+            const secondOperand = parseFloat(currentNumber);
+            let result;
+            if (operator === '+') {
+                result = firstOperand + secondOperand;
+            } else if (operator === '-') {
+                result = firstOperand - secondOperand;
+            } else if (operator === '×') {
+                result = firstOperand * secondOperand;
+            } else if (operator === '÷') {
+                if (secondOperand === 0) {
+                    currentNumber = 'Error';
+                    updateDisplay();
+                    return;
+                } else {
+                    result = firstOperand / secondOperand;
+                }
+            }
+            
+            if (isNaN(result) || !isFinite(result)) {
+                currentNumber = 'Error';
+            } else {
+                const resultString = result.toString();
+                if (resultString.length > 9) {
+                    result = parseFloat(result.toFixed(9));
+                } else {
+                    result = result.toString();
+                }
+                currentNumber = result;
+            }
         }
         updateDisplay();
         firstOperand = parseFloat(currentNumber);
         operator = null;
-      };
+    };
+    
       
     const handleButtonClick = (e) => {
       const { target } = e;
