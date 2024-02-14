@@ -1,0 +1,128 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const display = document.querySelector('.display');
+    let currentNumber = '';
+    let firstOperand = null;
+    let operator = null;
+    let shouldResetDisplay = false;
+  
+    const clearDisplay = () => {
+      display.textContent = '0';
+      currentNumber = '';
+      firstOperand = null;
+      operator = null;
+    };
+  
+    const updateDisplay = () => {
+      display.textContent = currentNumber;
+    };
+  
+    const appendNumber = (number) => {
+        if (currentNumber === '0' || shouldResetDisplay) {
+          currentNumber = '';
+          shouldResetDisplay = false;
+        }
+        if (currentNumber.length < 9) { 
+          currentNumber += number;
+          updateDisplay();
+        }
+      };
+  
+    const setOperator = (op) => {
+      if (operator !== null) operate();
+      firstOperand = parseFloat(currentNumber);
+      operator = op;
+      shouldResetDisplay = true;
+    };
+  
+    const operate = () => {
+        if (firstOperand === null || operator === null) {
+          currentNumber = '0';
+        } else {
+          const secondOperand = parseFloat(currentNumber);
+          let result;
+          if (operator === '+') {
+            result = firstOperand + secondOperand;
+          } else if (operator === '-') {
+            result = firstOperand - secondOperand;
+          } else if (operator === '×') {
+            result = firstOperand * secondOperand;
+          } else if (operator === '÷') {
+            if (secondOperand === 0) {
+                currentNumber = 'Objection!!!';
+                updateDisplay();
+                firstOperand = null;
+                operator = null;
+                return;
+            } else {
+              result = firstOperand / secondOperand;
+            }
+          }
+          if (isNaN(result)) {
+            currentNumber = '0';
+          } else if (Math.abs(result)  >= 1e9 ) {
+            currentNumber = result.toExponential(4);
+          } else {
+            currentNumber = result.toString();
+          }
+        }
+        updateDisplay();
+        firstOperand = parseFloat(currentNumber);
+        operator = null;
+      };
+      
+    const handleButtonClick = (e) => {
+      const { target } = e;
+      if (target.classList.contains('number')) {
+        appendNumber(target.textContent);
+      }
+      if (target.classList.contains('operator')) {
+        setOperator(target.textContent);
+      }
+      if (target.classList.contains('equals')) {
+        operate();
+      }
+      if (target.classList.contains('clear')) {
+        clearDisplay();
+      }
+      if (target.classList.contains('decimal')) {
+        if (!currentNumber.includes('.')) {
+          appendNumber('.');
+        }
+      }
+      if (target.classList.contains('backspace')) {
+        currentNumber = currentNumber.slice(0, -1);
+        if (currentNumber === '') {
+          currentNumber = '0';
+        }
+        updateDisplay();
+      }
+    };
+  
+    document.querySelectorAll('.calculator button').forEach(button => {
+      button.addEventListener('click', handleButtonClick);
+    });
+  
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if (!isNaN(key) || key === '.') {
+        appendNumber(key);
+      }
+      if (['+', '-', '*', '/'].includes(key)) {
+        setOperator(key === '*' ? '×' : (key === '/' ? '÷' : key));
+      }
+      if (key === 'Enter') {
+        operate();
+      }
+      if (key === 'Escape') {
+        clearDisplay();
+      }
+      if (key === 'Backspace') {
+        currentNumber = currentNumber.slice(0, -1);
+        if (currentNumber === '') {
+          currentNumber = '0';
+        }
+        updateDisplay();
+      }
+    });
+  });
+  
